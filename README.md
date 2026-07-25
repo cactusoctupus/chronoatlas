@@ -3,7 +3,7 @@
 This folder contains a single, self-contained `index.html` ready to drop onto any static host.
 No build step. No backend. No API keys. Open it in a browser and it works.
 
-Current version inside: **v1.21** (26 snapshots 3000 BCE → 2026 CE; 285 historical fact packs + 176 modern countries; stateless-peoples, trade-route and capital-city overlays; quiz mode with Level 0 (name + capital) and Level 1 (full chain); side-by-side compare mode; mobile-tuned UI).
+Current version inside: **v1.22** (26 snapshots 3000 BCE → 2026 CE; 285 historical fact packs + **205 modern states** — all 193 UN members, observers and major de-facto states; disputed territories red-hatched; guided quiz by continent and cultural set; compare mode; mobile-tuned UI).
 
 ---
 
@@ -82,11 +82,12 @@ and we'll polish it in a follow-up iteration.
 
 - Leaflet 1.9.4 + CartoDB Voyager tiles (loaded from CDN)
 - Google Fonts: Source Serif 4 + DM Sans (loaded from CDN)
-- 26 historical snapshots, 285 historical fact packs, 176 modern countries — all inline as JS constants
+- 26 historical snapshots, 285 historical fact packs, 205 modern states (incl. all microstates) — all inline as JS constants
+- Disputed/breakaway territories (Natural Earth 50m) shaded with red hatching, clickable for status notes
 - 12 stateless peoples (hatched overlay) + 8 historical trade routes (dashed polylines) + capital city stars, all toggleable top-right
-- Quiz mode with two levels — L0: country + capital; L1: full chain (capital, currency, religion, top-3 languages) — session-only progress tracking per snapshot
+- Quiz mode with two levels — L0: country + capital; L1: full chain — plus guided practice: continent → 33 cultural sets of ≤10 countries, master one set at a time
 - Compare eras: two synced maps side by side, any two snapshots
-- Single file, ~865 KB. Loads in seconds even on a slow phone connection.
+- Single file, ~946 KB. Loads in seconds even on a slow phone connection.
 
 Attribution to OpenStreetMap and CARTO is shown in the bottom-right corner of the map (required by the CC BY 3.0 / ODbL licensing of the basemap tiles).
 
