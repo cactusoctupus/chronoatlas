@@ -260,6 +260,20 @@ body.show-cap-names .cap-marker .cap-name.zoomgate{display:inline}
   #quiz-tracker{top:auto;bottom:118px;right:8px;padding:6px 10px;font-size:11px;min-width:96px}
   #legend{bottom:112px;left:8px;max-width:46vw;padding:8px 10px;max-height:32vh;overflow-y:auto}
 }
+/* v1.23: mobile quiz redesign — during a question the sheet stays short so the
+   highlighted country remains visible above it; the answer trail is hidden
+   (progress lives in the step counter + bar), and paddings tighten. */
+@media(max-width:768px){
+  body.quiz-mode #side-panel:has(#quiz-answer){max-height:38vh}
+  body.quiz-mode #side-panel:has(#quiz-answer) .quiz-trail{display:none}
+  body.quiz-mode #side-panel:has(#quiz-answer) #panel-header{padding:8px 16px 6px}
+  body.quiz-mode #side-panel:has(#quiz-answer) #panel-body{padding:8px 16px 14px}
+  body.quiz-mode #side-panel:has(#quiz-answer) .quiz-prompt{font-size:14px;margin:6px 0 4px}
+  body.quiz-mode #side-panel:has(#quiz-answer) .quiz-step-meta{margin-bottom:4px}
+  body.quiz-mode #side-panel:has(#quiz-answer) .guided-crumb{margin-bottom:6px;padding:4px 8px}
+  body.quiz-mode #side-panel:has(#quiz-answer) #quiz-submit{padding:10px;margin-top:6px}
+  body.quiz-mode #side-panel:has(#quiz-answer) .quiz-progress{margin-bottom:4px}
+}
 </style>
 </head>
 <body>
@@ -1134,6 +1148,7 @@ function startQuiz(countryName){
   if(typeof GUIDED!=='undefined' && GUIDED.active && GUIDED.queue.indexOf(countryName)===-1) GUIDED.active=false;
   QUIZ.active={name:countryName, year:yr, stepIdx:0, langsLeft:facts.languages.map(l=>l.slice()), langsNamed:[], trail:[], isHistorical:false};
   refreshModernStyle();
+  if(typeof isSmallScreen==='function'&&isSmallScreen())zoomToCountry(countryName);
   renderQuiz();
 }
 
@@ -1162,6 +1177,7 @@ function startQuizForEmpire(emp, year){
     empData: emp,
   };
   refreshHistoricalStyle();
+  if(typeof isSmallScreen==='function'&&isSmallScreen())zoomToEmpire(emp);
   renderQuiz();
 }
 
@@ -1271,7 +1287,7 @@ function renderQuiz(){
   // Focus the input
   const inp=document.getElementById('quiz-answer');
   if(inp){
-    inp.focus();
+    if(!(typeof isSmallScreen==='function'&&isSmallScreen()))inp.focus();
     inp.addEventListener('keydown',e=>{if(e.key==='Enter'){submitQuiz()}});
   }
 }
@@ -1517,11 +1533,26 @@ function guidedNext(){
   zoomToCountry(name);
   startQuiz(name);
 }
+function quizFitOpts(){
+  // v1.23: on phones, reserve the bottom of the viewport (question sheet) so the
+  // target country lands in the visible upper area of the map.
+  if(typeof isSmallScreen==='function' && isSmallScreen()){
+    const vh=(typeof window!=='undefined'&&window.innerHeight)?window.innerHeight:800;
+    return {paddingTopLeft:[36,96], paddingBottomRight:[36, Math.round(vh*0.42)+36], maxZoom:5};
+  }
+  return {padding:[60,60], maxZoom:5};
+}
 function zoomToCountry(name){
   if(!QUIZ.geoLayer||!map)return;
   let target=null;
   QUIZ.geoLayer.eachLayer(l=>{const f=l.feature;if(f&&f.properties&&f.properties.name===name&&!f.properties._wrapDx)target=l;});
-  if(target&&target.getBounds){try{map.fitBounds(target.getBounds(),{padding:[60,60],maxZoom:5});}catch(e){}}
+  if(target&&target.getBounds){try{map.fitBounds(target.getBounds(),quizFitOpts());}catch(e){}}
+}
+function zoomToEmpire(emp){
+  if(typeof layers==='undefined'||!map)return;
+  let target=null;
+  layers.forEach(l=>{if(l._empName===emp.name && l._wrapDx===0)target=l;});
+  if(target&&target.getBounds){try{map.fitBounds(target.getBounds(),quizFitOpts());}catch(e){}}
 }
 function renderGroupComplete(){
   const g=QUIZ_GROUPS[GUIDED.continent].groups[GUIDED.group];
